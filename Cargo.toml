@@ -1,0 +1,12 @@
+[package]
+name = "egui_draw3d"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+egui = "0.23.0"
+eframe = "0.23.0"
+glam = "0.24.2"
+
