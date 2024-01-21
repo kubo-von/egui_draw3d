@@ -6,7 +6,8 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-egui = "0.23.0"
-eframe = "0.23.0"
-glam = "0.24.2"
+egui = "0.25.0"
+glam = "0.25.0"
 
+[dev-dependencies]
+eframe = "0.25.0"

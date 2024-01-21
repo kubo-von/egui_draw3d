@@ -1,6 +1,8 @@
 #![warn(clippy::all, rust_2018_idioms)]
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")] // hide console window on Windows in release
-use eframe::egui;
+#![allow(warnings, unused)]
+
+use egui;
 use egui_draw3d::widgets::viewport3d::Viewport3d;
 use egui_draw3d::shapes;
 use egui_draw3d::camera;
@@ -9,8 +11,9 @@ use glam::{Vec3, Mat4, Quat};
 
 fn main() -> eframe::Result<()> {
     let native_options = eframe::NativeOptions {
-        initial_window_size: Some([1300.0, 800.0].into()),
-        min_window_size: Some([300.0, 300.0].into()),
+        viewport: egui::ViewportBuilder::default().with_active(true)
+            .with_inner_size([1280.0, 720.0])
+            .with_min_inner_size([300.0, 220.0]),
         ..Default::default()
     };
     eframe::run_native(
@@ -19,7 +22,6 @@ fn main() -> eframe::Result<()> {
         Box::new(|cc| Box::new(TemplateApp::new(cc))),
     )
 }
-
 
 pub struct TemplateApp {
     sensitivity: f32,
@@ -51,18 +53,15 @@ impl eframe::App for TemplateApp {
 
         egui::TopBottomPanel::top("top_panel").show(ctx, |ui| {
             // The top panel is often a good place for a menu bar:
-
             egui::menu::bar(ui, |ui| {
-                #[cfg(not(target_arch = "wasm32"))] // no File->Quit on web pages!
                 {
                     ui.menu_button("File", |ui| {
                         if ui.button("Quit").clicked() {
-                            _frame.close();
+                            ctx.send_viewport_cmd(egui::ViewportCommand::Close);
                         }
                     });
                     ui.add_space(16.0);
                 }
-
                 egui::widgets::global_dark_light_mode_buttons(ui);
             });
         });
@@ -107,6 +106,15 @@ impl eframe::App for TemplateApp {
                 self.camera_xform = cam_rot_y * cam_rot_x * camera.xform;
             }
             
+            if ctx.input(|i|{ i.modifiers.alt && i.pointer.middle_down()}){
+                let drag = view_response.drag_delta();
+                let pan_m_x = Mat4::from_translation(self.camera_xform.x_axis.truncate() * -drag.x * self.sensitivity);
+                let pan_m_y = Mat4::from_translation(self.camera_xform.y_axis.truncate() * -drag.y * self.sensitivity);
+                self.camera_xform = pan_m_x * pan_m_y * self.camera_xform ;
+            }
+
+            
+            
             // handle camera dolly by scrolling and paning 
             ctx.input(|i|{
                 //dolly
@@ -117,17 +125,16 @@ impl eframe::App for TemplateApp {
                     let dolly_m = Mat4::from_translation(z_axis * scroll * self.sensitivity);
                     self.camera_xform = dolly_m * self.camera_xform ;
                     }
-                //pan
-                if ctx.input(|i|{ i.modifiers.alt && i.pointer.middle_down()}){
-                    let drag = view_response.drag_delta();
-                    let pan_m_x = Mat4::from_translation(self.camera_xform.x_axis.truncate() * -drag.x * self.sensitivity);
-                    let pan_m_y = Mat4::from_translation(self.camera_xform.y_axis.truncate() * -drag.y * self.sensitivity);
-                    self.camera_xform = pan_m_x * pan_m_y * self.camera_xform ;
-                }
-                });
+            });
+
+            
+            
             ui.separator();
 
 
         });
     }
 }
+
+
+

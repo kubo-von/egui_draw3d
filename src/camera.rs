@@ -1,4 +1,3 @@
-use eframe::glow::MATRIX_STRIDE;
 use glam::{Vec3, Mat4};
 
 pub trait Camera {

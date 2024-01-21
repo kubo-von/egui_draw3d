@@ -1,10 +1,9 @@
 use std::ops::Deref;
-
 use glam::Mat4;
 
 use crate::{Shape3d};
-use crate::camera::{*};
-use crate::shapes;
+use crate::camera::*;
+
 pub struct Viewport3d {
     width: usize,
     height: usize,
@@ -38,7 +37,7 @@ impl Default for Viewport3d {
     }
 }
 
-impl eframe::egui::Widget for Viewport3d {
+impl egui::Widget for Viewport3d {
     fn ui(self, ui: &mut egui::Ui) -> egui::Response {
         let (response, painter) = ui.allocate_painter(
             egui::Vec2::new(self.width as f32, self.height as f32),
