@@ -3,10 +3,11 @@
 
 Unholy experiment, trying to draw 3d shapes in a viewport using only egui's **epaint** 2d library and **glam**.
 This is in very early stages and might not go anywhere. 
-there is no Z sorting atm sop everythign gets drawn in order you add it .
-Perforamce starts to drop quite a lot when you reach ~ 1 mil drawn lines.
+there is no Z sorting at the moment so everything gets drawn in the order you add it .
+Performance starts to drop quite a lot when you reach ~ 1 mil drawn lines.
 
 ### Features:
+- polymesh
 - cube / bbox
 - vector
 - pointcloud 
@@ -16,8 +17,7 @@ Perforamce starts to drop quite a lot when you reach ~ 1 mil drawn lines.
 
 ### Might be added:
 - more light shapes
-- triangle mesh shape
-- transofrmation gizmos
+- transformation gizmos
 - primitive per object Z sorting
 - selection system
 
