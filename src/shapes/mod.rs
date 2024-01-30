@@ -2,6 +2,7 @@ pub mod cube;
 pub mod grid;
 pub mod point_light;
 pub mod point_cloud;
+pub mod polymesh;
 pub mod vector;
 use egui;
 use crate::camera::Camera;

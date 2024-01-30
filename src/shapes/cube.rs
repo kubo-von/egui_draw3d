@@ -4,16 +4,22 @@ use glam::{Vec3, Mat4, Quat};
 use super::Shape3d;
 use crate::camera::Camera;
 
-#[derive(Copy, Clone)]
-pub struct Cube { 
-    pub size: Vec3, 
-    pub xform: Mat4 
+#[derive( Clone)]
+pub struct Cube {
+    pub name: Option<String>,
+    pub xform: Mat4,
+    pub size: Vec3,
+    pub line_width: f32,
+    pub color: egui::Color32,
     }
 impl Cube {
-    pub fn new(size: Vec3, xform: Mat4)->Cube{
+    pub fn new(name: Option<String>, xform: Mat4, size: Vec3, line_width: f32, color: egui::Color32)->Cube{
         Cube { 
+            name: name,
+            xform: xform,
             size: size, 
-            xform: xform
+            line_width: line_width,
+            color: color,
             }
     }
 }
@@ -46,10 +52,23 @@ impl Shape3d for Cube{
             ];
         
         // Get the relative position of our "canvas"
-let to_screen = egui::emath::RectTransform::from_to(
-    egui::Rect::from_min_size(egui::Pos2::ZERO, response.rect.size()),
-    response.rect,
-);
+        let to_screen = egui::emath::RectTransform::from_to(
+            egui::Rect::from_min_size(egui::Pos2::ZERO, response.rect.size()),
+            response.rect,
+        );
+        
+        let pivot = self.xform.transform_point3(Vec3::ZERO);
+        let pivot_projected = cam.project_point( pivot );
+        let pivot_screen = egui::Pos2::new( pivot_projected.x * viewport_size.x, pivot_projected.y * viewport_size.y)  + viewport_size/2.0;
+        
+        let cam_pos = cam.get_center();
+        let attenuate = (1.0 - (cam_pos-pivot).length() / cam.get_far() ).clamp(0.0, 1.0);
+        let fill_alpha = 0.5 * attenuate;
+        let color = egui::Color32::from_rgba_unmultiplied(self.color.r(), self.color.g(), self.color.b(), ( (self.color.a() as f32 / 256.0 ) * fill_alpha*255.0 ) as u8 );
+        let stroke = egui::Stroke {
+                width: self.line_width,
+                color: color,
+            };
         
         for line in indices{
             let vtx1 = self.xform.transform_point3( vertices[line.0] * self.size);
@@ -64,14 +83,21 @@ let to_screen = egui::emath::RectTransform::from_to(
             let line_center_n = ( (vtx1+vtx2)/2.0 - cube_center ).normalize();
             let mut line_width =  line_center_n.dot((cam_pos-cube_center).normalize()) + 1.0 + 0.1;
             line_width *= (1.0 - (cam_pos-cube_center).length() / cam.get_far() ).clamp(0.0, 1.0)+0.1; //attenuate by distance from camera
-            // Paint the line!
+            
+            // Paint the line
             painter.add(egui::Shape::LineSegment {
                 points: [to_screen.transform_pos(p1), to_screen.transform_pos(p2)],
-                stroke: egui::Stroke {
-                    width: line_width,
-                    color: egui::Color32::LIGHT_GRAY,
-                },
+                stroke
             });
         }
+        
+    match &self.name{
+        Some(n) => {
+            let text_pos = pivot_screen;
+            painter.text(text_pos, egui::Align2::CENTER_CENTER, n.clone(), egui::FontId::monospace(16.0), color);
+            },
+        None => {}
+    }
+    
     }
 }

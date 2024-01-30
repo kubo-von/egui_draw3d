@@ -4,16 +4,20 @@ use glam::{Vec3, Mat4, Quat};
 use super::Shape3d;
 use crate::camera::Camera;
 
-#[derive(Copy, Clone)]
-pub struct PointLight { 
-    pub size: f32, 
-    pub xform: Mat4 
+#[derive( Clone)]
+pub struct PointLight {
+    pub name: Option<String>,
+    pub xform: Mat4,
+    pub size: f32,
+    pub color: egui::Color32,
     }
 impl PointLight {
-    pub fn new(size: f32, xform: Mat4)->PointLight{
-        PointLight { 
-            size: size, 
-            xform: xform
+    pub fn new( name: Option<String>, xform: Mat4, size: f32, color: egui::Color32)->PointLight{
+        PointLight {
+            name: name,
+            xform: xform,
+            size: size,
+            color: color,
             }
     }
 }

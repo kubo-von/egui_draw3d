@@ -6,20 +6,22 @@ use crate::camera::Camera;
 
 const phi: f32 = std::f32::consts::PI;
 
-#[derive(Copy, Clone)]
+#[derive(Clone)]
 pub struct Vector { 
-    pub size: f32,
-    pub dir: Vec3, 
+    pub name: Option<String>,
     pub xform: Mat4,
-    pub color: egui::Color32
+    pub size: f32,
+    pub color: egui::Color32,
+    pub dir: Vec3, 
     }
 impl Vector {
-    pub fn new(size: f32, dir: Vec3, xform: Mat4, color: egui::Color32)->Vector{
-        Vector { 
-            size: size, 
-            dir:dir,
+    pub fn new(name: Option<String>,xform: Mat4, size: f32, color: egui::Color32, dir: Vec3)->Vector{
+        Vector {
+            name: name,
             xform: xform,
-            color: color
+            size: size, 
+            color: color,
+            dir:dir,
             }
     }
 }

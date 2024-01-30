@@ -5,17 +5,21 @@ use super::Shape3d;
 use crate::camera::Camera;
 
 #[derive( Clone)]
-pub struct PointCloud { 
-    pub points: Vec<Vec3>,
+pub struct PointCloud {
+    pub name: Option<String>,
+    pub xform: Mat4,
     pub size: f32, 
-    pub xform: Mat4 
+    pub color: egui::Color32,
+    pub points: Vec<Vec3>,
     }
 impl PointCloud {
-    pub fn new(points: Vec<Vec3>,size: f32, xform: Mat4)->PointCloud{
+    pub fn new(name: Option<String>,xform: Mat4, size: f32, color: egui::Color32, points: Vec<Vec3>)->PointCloud{
         PointCloud {
-            points: points, 
-            size: size, 
-            xform: xform
+            name: name,
+            xform: xform,
+            size: size,
+            color: color,
+            points: points,
             }
     }
 }
@@ -42,9 +46,9 @@ let to_screen = egui::emath::RectTransform::from_to(
     let cam_pos = cam.get_center();
     let attenuate = (1.0 - (cam_pos-pivot).length() / cam.get_far() ).clamp(0.0, 1.0);
     let fill_alpha = 0.5 * attenuate;
-    let color = egui::Color32::from_rgba_unmultiplied(0, 128, 255, (fill_alpha*255.0) as u8 );
+    let color = egui::Color32::from_rgba_unmultiplied(self.color.r(), self.color.g(), self.color.b(), ( (self.color.a() as f32 / 256.0 ) * fill_alpha*255.0 ) as u8 );
         
-    // Paint the rays
+    // Paint the points
     for p in &self.points{
         let p_x = self.xform.transform_point3(*p);
         let p_projected = cam.project_point( p_x );
@@ -57,7 +61,13 @@ let to_screen = egui::emath::RectTransform::from_to(
         }));
     }
 
-    painter.text(pivot_screen, egui::Align2::CENTER_CENTER, "/pointcloud1", egui::FontId::monospace(16.0), color);
-    
+    match &self.name{
+        Some(n) => {
+            let text_pos = pivot_screen;
+            painter.text(text_pos, egui::Align2::CENTER_CENTER, n.clone(), egui::FontId::monospace(16.0), color);
+            },
+        None => {}
+    }
+        
     }
 }
